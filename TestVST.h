@@ -1,30 +1,32 @@
 // TestVST.h
+#pragma once
 #include "audioeffectx.h"
-#include "DCCutFilter.h"
-#include <string>
-
-#define NUM_PARAMS 5
-#define P_GAIN 0
-#define P_GATE 1
-#define P_BLEND 2
-#define P_TONE 3
-#define P_INVERT 4
-
-typedef struct{
-	float value;
-	std::string name;
-} MinimalParameter;
-
+#include "common.h"
+#include "Parameter.h"
+#include "Filter.h"
 
 class TestVST : public AudioEffectX
 {
 private:
-	DCCutFilter dcFilter;
-	float out2[4], cutCalc, gate, invert, gain;
+	std::vector<DcFilter> dcFilter;
+	std::vector<Filter> toneFilters;
+	std::vector<Filter> downsamplingFilters;
+
+	float gate, gain;
+	bool invert;
+	int gateMode;
+
 	bool muteNextFrame;
-	MinimalParameter params[NUM_PARAMS];
-	void addParam(int index, char *name, float value = 0.5);
+	std::vector<Parameter> params;
+	int oversampling = 1;
+
+	char* chunk = nullptr;
+
 	void updateParams();
+
+	float processOneSample(float input, int channel);
+	float fuzz(float i);
+
 public:
 	TestVST(audioMasterCallback audioMaster);
 	~TestVST();
@@ -37,4 +39,7 @@ public:
 	bool getEffectName(char* name);
 	bool getProductString(char* text);
 	bool getVendorString(char* text);
+	VstInt32 getChunk(void** data, bool isPreset);
+	VstInt32 setChunk(void* data, VstInt32 byteSize, bool isPreset);
+	void open();
 };
