@@ -24,18 +24,9 @@ TestVST::TestVST(audioMasterCallback audioMaster) :
 	{
 		params.push_back(Parameter(i, 0.5));
 	}
-	for (int ch = 0; ch < 2; ch++)
-	{
-		dcFilter.push_back(DcFilter(sampleRate));
-		toneFilters.push_back(Filter(sampleRate * oversampling));
-		toneFilters.push_back(Filter(sampleRate * oversampling));
-		downsamplingFilters.push_back(Filter(sampleRate * oversampling));
-		downsamplingFilters[ch].updateLowpass(sampleRate * 0.5);
-	}
 	params[idx_Invert].value = 0;
 	params[idx_Oversampling].value = 0;
 	params[idx_Gate_mode].value = 0;
-	updateParams();
 }
 
 TestVST::~TestVST()
@@ -48,6 +39,15 @@ TestVST::~TestVST()
 
 void TestVST::open()
 {
+	for (int ch = 0; ch < 2; ch++)
+	{
+		dcFilter.push_back(DcFilter(sampleRate));
+		toneFilters.push_back(Filter(sampleRate * oversampling));
+		toneFilters.push_back(Filter(sampleRate * oversampling));
+		downsamplingFilters.push_back(Filter(sampleRate * oversampling));
+		downsamplingFilters[ch].updateLowpass(sampleRate * 0.5);
+	}
+	updateParams();
 	setEditor(new Gui(this));
 }
 
