@@ -8,7 +8,7 @@
 #include "GenericDto.h"
 #include "Gui.h"
 
-AudioEffect* createEffectInstance(audioMasterCallback audioMaster) {
+FstAudioEffect* createFstInstance(audioMasterCallback audioMaster) {
 	return new TestVST(audioMaster);
 }
 

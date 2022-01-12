@@ -1,0 +1,4 @@
+LIBRARY TESTVST
+EXPORTS
+VSTPluginMain 
+main=VSTPluginMain
