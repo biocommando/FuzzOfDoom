@@ -20,6 +20,7 @@ TestVST::TestVST(audioMasterCallback audioMaster) :
 	setNumOutputs(2); // stereo out
 	setUniqueID(1621747547); // identify
 	programsAreChunks();
+	hasEditor();
 	for (int i = 0; i < total_number_of_parameters; i++)
 	{
 		params.push_back(Parameter(i, 0.5));
@@ -77,7 +78,7 @@ VstInt32 TestVST::getChunk(void** data, bool isPreset)
 VstInt32 TestVST::setChunk(void* data, VstInt32 byteSize, bool isPreset)
 {
 	auto dtos = GenericDto::deserializeAll(std::string((char*)data, byteSize));
-	for (int i = 0; i < dtos.size(); i++)
+	for (int i = 0; i < dtos.size() && i < 10; i++)
 	{
 		const auto dto = &dtos[i];
 		if (dto->id == reserved_id_version || dto->id == reserved_id_build_date)
@@ -189,6 +190,7 @@ float TestVST::fuzz(const float input)
 	float gated;
 	switch (gateMode)
 	{
+	default:
 	case 0:
 		gated = i > gate ? 1 : -1;
 		break;

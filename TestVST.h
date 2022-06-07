@@ -30,7 +30,7 @@ private:
 public:
 	TestVST(audioMasterCallback audioMaster);
 	~TestVST();
-	void processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames);
+	void processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames);
 	float getParameter(VstInt32 index);
 	void setParameter(VstInt32 index, float value);
 	void getParameterName(VstInt32 index, char *label);

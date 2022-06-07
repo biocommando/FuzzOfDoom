@@ -18,12 +18,10 @@ bool Gui::open(void *ptr)
 
     auto xframe = new CFrame(frameSize, ptr, this);
 
-	// Image source https://www.maxpixel.net/Skulls-Transparent-Cutout-Fantasy-Background-6488338
     knobBackground = CBitmapLoader::load("FuzzOfDoomKnob.bmp");
 
     xframe->setBackgroundColor(cBg);
 
-    // Image source https://www.maxpixel.net/Bone-Skull-Weird-Skull-And-Crossbones-Death-715766
     auto backgroundImage = CBitmapLoader::load("FuzzOfDoom.bmp");
 
     CRect logoRect(0, 0, backgroundImage->getWidth(), backgroundImage->getHeight());
