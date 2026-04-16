@@ -12,20 +12,21 @@ class Util
         static std::string workDir;
         if (workDir != "")
             return workDir;
-        // work out the resource directory
+/*        // work out the resource directory
         // first we get the DLL path from windows API
-        extern void *hInstance;
+        //extern void *hInstance;
 #ifdef UNICODE
         wchar_t workDirWc[1024];
-        GetModuleFileName((HMODULE)hInstance, workDirWc, 1024);
+        GetModuleFileName(GetModuleHandle(nullptr), workDirWc, 1024);
         char workDirC[1024];
         wcstombs(workDirC, workDirWc, 1024);
 #else
         char workDirC[1024];
-        GetModuleFileName((HMODULE)hInstance, workDirC, 1024);
-#endif
+        GetModuleFileName(GetModuleHandle(nullptr), workDirC, 1024);
+#endif*/
 
-        workDir.assign(workDirC);
+        extern const char *get_plugin_path();
+        workDir.assign(get_plugin_path());
 
         // let's get rid of the DLL file name
         auto posBslash = workDir.find_last_of('\\');

@@ -1,4 +1,5 @@
 #include "Gui.h"
+typedef short VstInt16;
 
 CColor frontColor = {77, 77, 77, 255};
 CColor menuBgColor = {11, 11, 11, 255};
@@ -86,7 +87,7 @@ void Gui::valueChanged(CControl *control)
 		float value = knob->getValue();
         auto paramid = knob->paramId;
 
-        synth()->setParameterAutomated(idx, value);
+        synth()->setParameter/*Automated*/(idx, value);
         knob->setLabel(value);
     }
 }

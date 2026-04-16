@@ -7,7 +7,7 @@
 
 extern CColor frontColor, menuBgColor;
 
-class Gui : public AEffGUIEditor, public CControlListener
+class Gui : public AEffGUIEditorFst, public CControlListener
 {
     std::vector<Knob *> knobs;
     COptionMenu *presetList = nullptr;
@@ -24,7 +24,7 @@ class Gui : public AEffGUIEditor, public CControlListener
 
     TestVST *synth()
     {
-        return (TestVST*)effect;
+        return effect;
     }
 
     Knob *addKnob(CFrame *xframe, int x, int y, int idx, int tag)
@@ -52,9 +52,9 @@ class Gui : public AEffGUIEditor, public CControlListener
             ctrl->setFrameColor(cFg);
         ctrl->setFontColor(cFg);
     }
-
+    TestVST *effect;
 public:
-	Gui(void *ptr) : AEffGUIEditor(ptr)
+	Gui(TestVST *ptr) : AEffGUIEditorFst(ptr), effect(ptr)
     {
     }
     ~Gui()

@@ -1,13 +1,16 @@
 // TestVST.h
 #pragma once
-#include "audioeffectx.h"
+//#include "audioeffectx.h"
 #include "common.h"
 #include "Parameter.h"
 #include "Filter.h"
 
-class TestVST : public AudioEffectX
+typedef int VstInt32;
+
+class TestVST //: public AudioEffectX
 {
 private:
+	bool opened = false;
 	std::vector<DcFilter> dcFilter;
 	std::vector<Filter> toneFilters;
 	std::vector<Filter> downsamplingFilters;
@@ -28,7 +31,9 @@ private:
 	float fuzz(float i);
 
 public:
-	TestVST(audioMasterCallback audioMaster);
+	void *editor = nullptr;
+	int sampleRate;
+	TestVST();//(audioMasterCallback audioMaster);
 	~TestVST();
 	void processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames);
 	float getParameter(VstInt32 index);

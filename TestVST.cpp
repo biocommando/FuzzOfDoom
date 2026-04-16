@@ -1,26 +1,148 @@
 // This is the main DLL file.
 
-#include "stdafx.h"
+//#include "stdafx.h"
+#include <vst_bridge.h>
 #include "TestVST.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "GenericDto.h"
 #include "Gui.h"
+#if 0
+static void log(const char *s)
+{
+	static int init = 0;
+	FILE *f = fopen("D:\\code\\c\\debug.log", init ? "a" : "w");
+	init = 1;
+	fprintf(f, "%s\n", s);
+	fclose(f);
+}
+#else
+#define log(x)
+#endif
 
-FstAudioEffect* createFstInstance(audioMasterCallback audioMaster) {
+const char *get_vst_plugin_unique_id()
+{
+	return "com.joonassalonpaa.fuzzofdoom";
+}
+const char *get_vst_plugin_name()
+{
+	return "Fuzz of Doom";
+}
+const char *get_vst_plugin_vendor()
+{
+	return "Joonas Salonpaa";
+}
+const char *get_vst_plugin_version()
+{
+	return "0.1.0";
+}
+bool vst_is_synth()
+{
+	return false;
+}
+/*FstAudioEffect* createFstInstance(audioMasterCallback audioMaster) {
 	return new TestVST(audioMaster);
+}*/
+#define WPLUG ((TestVST*)vst->effect)
+bool VSTPlugin_init(VSTPlugin *vst)
+{
+	log("VSTPlugin_init");
+    return true;
+}
+void VSTPlugin_activate(VSTPlugin *vst, double sr)
+{
+	log("VSTPlugin_activate");
+	WPLUG->sampleRate = sr;
+	WPLUG->open();
+	log("VSTPlugin_activate end");
+}
+void VSTPlugin_process(VSTPlugin *vst, float **in, float **out, int frames)
+{
+	log("VSTPlugin_process");
+	WPLUG->processReplacing(in, out, frames);
+	log("VSTPlugin_process end");
 }
 
-TestVST::TestVST(audioMasterCallback audioMaster) :
-	AudioEffectX(audioMaster, 0, total_number_of_parameters),
+void VSTPlugin_set_param(VSTPlugin *vst, int index, float value)
+{
+	log("VSTPlugin_set_param");
+	WPLUG->setParameter(index, value);
+	log("VSTPlugin_set_param end");
+}
+
+float VSTPlugin_get_param(VSTPlugin *vst, int index)
+{
+	log("VSTPlugin_get_param");
+    return WPLUG->getParameter(index);
+	log("VSTPlugin_get_param end");
+}
+int VSTPlugin_get_param_count(VSTPlugin *vst)
+{
+	log("VSTPlugin_get_param_count");
+    return total_number_of_parameters;
+}
+void VSTPlugin_process_note_event(VSTPlugin *vst, int key, int velocity, int type)
+{
+}
+void *VSTPlugin_get_chunk(VSTPlugin *vst, size_t *size)
+{
+	log("VSTPlugin_get_chunk");
+	void *data;
+    *size = static_cast<size_t>(WPLUG->getChunk(&data, false));
+	log("VSTPlugin_get_chunk end");
+	return data;
+}
+bool VSTPlugin_set_chunk(VSTPlugin *vst, const void *data, size_t size)
+{
+	log("VSTPlugin_set_chunk");
+	WPLUG->setChunk(const_cast<void*>(data), size, false);
+	log("VSTPlugin_set_chunk end");
+    return true;
+}
+void VSTPlugin_destroy(VSTPlugin *vst)
+{
+	log("VSTPlugin_destroy");
+}
+void VSTPlugin_get_param_name(VSTPlugin *vst, int index, char *label)
+{
+	strcpy(label, getNameForParam(index, true));
+}
+void VSTPlugin_get_param_display(VSTPlugin *vst, int index, char *label)
+{
+	const auto numopt = getNumberOfOptions(index);
+	if (numopt == 0) {
+		WPLUG->getParameterDisplay(index, label);
+		return;
+	}
+	const auto optlbl = getOptionLabel(index, Util::getSelection(WPLUG->getParameter(index), numopt));
+	strcpy(label, optlbl);
+}
+
+void *VSTPlugin_new_plugin(VSTPlugin *vst)
+{
+	return new TestVST();
+}
+
+bool VSTPlugin_has_ui(VSTPlugin *vst)
+{
+    return true;
+}
+void *VSTPlugin_create_editor(VSTPlugin *vst)
+{
+	WPLUG->editor = new Gui(WPLUG);
+	return WPLUG->editor;
+}
+
+TestVST::TestVST(/*audioMasterCallback audioMaster*/) :
+	/*AudioEffectX(audioMaster, 0, total_number_of_parameters),*/
 	muteNextFrame(false)
 {
-	setNumInputs(2); // stereo in
+	/*setNumInputs(2); // stereo in
 	setNumOutputs(2); // stereo out
 	setUniqueID(1621747547); // identify
 	programsAreChunks();
-	hasEditor();
+	hasEditor();*/
 	for (int i = 0; i < total_number_of_parameters; i++)
 	{
 		params.push_back(Parameter(i, 0.5));
@@ -40,6 +162,8 @@ TestVST::~TestVST()
 
 void TestVST::open()
 {
+	if (opened) return;
+	opened = true;
 	for (int ch = 0; ch < 2; ch++)
 	{
 		dcFilter.push_back(DcFilter(sampleRate));
@@ -49,7 +173,7 @@ void TestVST::open()
 		downsamplingFilters[ch].updateLowpass(sampleRate * 0.5);
 	}
 	updateParams();
-	setEditor(new Gui(this));
+	//setEditor(new Gui(this));
 }
 
 VstInt32 TestVST::getChunk(void** data, bool isPreset)
@@ -135,6 +259,11 @@ void TestVST::setParameter(VstInt32 index, float value)
 		}
 	}
 	params[index].value = value;
+	if (editor)
+	{
+		auto gui = (Gui*)editor;
+		gui->setParameter(index, value);
+	}
 	updateParams();
 }
 void TestVST::getParameterName(VstInt32 index, char* label)
