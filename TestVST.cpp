@@ -189,12 +189,12 @@ VstInt32 TestVST::getChunk(void** data, bool isPreset)
 		auto param = &params[i];
 		s += GenericDto::serializeParameter(param->value, i);
 	}
-	chunk = (char*)malloc(s.size() + 1);
+	chunk = (char*)malloc(s.size());
 	if (chunk)
 	{
-		memcpy(chunk, s.c_str(), s.size() + 1);
+		memcpy(chunk, s.c_str(), s.size());
 		*data = chunk;
-		return s.size() + 1;
+		return s.size();
 	}
 	return 0;
 }
@@ -300,6 +300,8 @@ bool TestVST::getVendorString(char* text)
 
 void TestVST::updateParams()
 {
+	if (!opened)
+		return;
 	float pow2Cut = params[idx_Tone].value;
 	pow2Cut *= pow2Cut;
 	auto cutFreqHz = sampleRate * 0.5 * pow2Cut;
